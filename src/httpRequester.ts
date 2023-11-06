@@ -1,9 +1,11 @@
 import { Http } from "code-push/script/acquisition-sdk";
 import type { Callback } from "./callbackUtil";
-import type { HttpResponse, HttpOptions } from "@capacitor-community/http";
-// import { Http as NativeHttp } from "@capacitor-community/http";
 import { Verb } from "./http";
-import { CapacitorHttp } from "@capacitor/core";
+import {
+  CapacitorHttp,
+  type HttpResponse,
+  type HttpOptions,
+} from "@capacitor/core";
 
 console.log("---- loaded Verb", Verb.GET, Verb.HEAD);
 

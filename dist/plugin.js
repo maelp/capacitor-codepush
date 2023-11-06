@@ -1,4 +1,4 @@
-var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http, device, dialog) {
+var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, device, dialog) {
     'use strict';
 
     /**
@@ -107,8 +107,7 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
                 try {
                     const statResult = yield filesystem.Filesystem.stat({ directory, path });
                     // directory for Android, NSFileTypeDirectory for iOS
-                    return (statResult.type === "directory" ||
-                        statResult.type === "NSFileTypeDirectory");
+                    return statResult.type === "directory";
                 }
                 catch (error) {
                     return false;
@@ -123,7 +122,7 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
                 try {
                     const statResult = yield filesystem.Filesystem.stat({ directory, path });
                     // file for Android, NSFileTypeRegular for iOS
-                    return (statResult.type === "file" || statResult.type === "NSFileTypeRegular");
+                    return statResult.type === "file";
                 }
                 catch (error) {
                     return false;
@@ -419,6 +418,7 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
     class Package {
     }
 
+    console.log("---- loaded Verb", 0 /* GET */, 1 /* HEAD */);
     /**
      * XMLHttpRequest-based implementation of Http.Requester.
      */
@@ -427,6 +427,7 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
             this.contentType = contentType;
         }
         request(verb, url, callbackOrRequestBody, callback) {
+            console.log("---- calling httpRequester.request");
             var requestBody;
             var requestCallback = callback;
             // request(verb, url, callback)
@@ -446,13 +447,14 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
                 }
             }
             var methodName = this.getHttpMethodName(verb);
+            console.log("----- methodName", methodName);
             if (methodName === null) {
                 return requestCallback(new Error("Method Not Allowed"), null);
             }
             const headers = {
                 "X-CodePush-Plugin-Name": "cordova-plugin-code-push",
                 "X-CodePush-Plugin-Version": "1.11.13",
-                "X-CodePush-SDK-Version": "3.1.5"
+                "X-CodePush-SDK-Version": "3.1.5",
             };
             if (this.contentType) {
                 headers["Content-Type"] = this.contentType;
@@ -460,7 +462,7 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
             const options = {
                 method: methodName,
                 url,
-                headers
+                headers,
             };
             if (methodName === "GET") {
                 options.params = requestBody;
@@ -468,10 +470,13 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
             else {
                 options.data = requestBody;
             }
-            http.Http.request(options).then((nativeRes) => {
+            core.CapacitorHttp.request(options).then((nativeRes) => {
                 if (typeof nativeRes.data === "object")
                     nativeRes.data = JSON.stringify(nativeRes.data);
-                var response = { statusCode: nativeRes.status, body: nativeRes.data };
+                var response = {
+                    statusCode: nativeRes.status,
+                    body: nativeRes.data,
+                };
                 requestCallback && requestCallback(null, response);
             });
         }
@@ -481,21 +486,21 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
          */
         getHttpMethodName(verb) {
             switch (verb) {
-                case acquisitionSdk.Http.Verb.GET:
+                case 0 /* GET */:
                     return "GET";
-                case acquisitionSdk.Http.Verb.DELETE:
+                case 4 /* DELETE */:
                     return "DELETE";
-                case acquisitionSdk.Http.Verb.HEAD:
+                case 1 /* HEAD */:
                     return "HEAD";
-                case acquisitionSdk.Http.Verb.PATCH:
+                case 8 /* PATCH */:
                     return "PATCH";
-                case acquisitionSdk.Http.Verb.POST:
+                case 2 /* POST */:
                     return "POST";
-                case acquisitionSdk.Http.Verb.PUT:
+                case 3 /* PUT */:
                     return "PUT";
-                case acquisitionSdk.Http.Verb.TRACE:
-                case acquisitionSdk.Http.Verb.OPTIONS:
-                case acquisitionSdk.Http.Verb.CONNECT:
+                case 5 /* TRACE */:
+                case 6 /* OPTIONS */:
+                case 7 /* CONNECT */:
                 default:
                     return null;
             }
@@ -521,13 +526,14 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
         static getAcquisitionManager(userDeploymentKey, contentType) {
             return __awaiter$3(this, void 0, void 0, function* () {
                 const resolveManager = () => {
-                    if (userDeploymentKey !== Sdk.DefaultConfiguration.deploymentKey || contentType) {
+                    if (userDeploymentKey !== Sdk.DefaultConfiguration.deploymentKey ||
+                        contentType) {
                         var customConfiguration = {
                             deploymentKey: userDeploymentKey || Sdk.DefaultConfiguration.deploymentKey,
                             serverUrl: Sdk.DefaultConfiguration.serverUrl,
                             ignoreAppVersion: Sdk.DefaultConfiguration.ignoreAppVersion,
                             appVersion: Sdk.DefaultConfiguration.appVersion,
-                            clientUniqueId: Sdk.DefaultConfiguration.clientUniqueId
+                            clientUniqueId: Sdk.DefaultConfiguration.clientUniqueId,
                         };
                         var requester = new HttpRequester(contentType);
                         var customAcquisitionManager = new acquisitionSdk.AcquisitionManager(requester, customConfiguration);
@@ -569,7 +575,7 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
                         serverUrl,
                         ignoreAppVersion: false,
                         appVersion,
-                        clientUniqueId: device$1.uuid
+                        clientUniqueId: device$1.identifier,
                     };
                     if (deploymentKey) {
                         Sdk.DefaultAcquisitionManager = new acquisitionSdk.AcquisitionManager(new HttpRequester(), Sdk.DefaultConfiguration);
@@ -602,7 +608,8 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
                     acquisitionManager.reportStatusDownload(pkg, callback);
                 }
                 catch (e) {
-                    callback && callback(new Error("An error occured while reporting the download status. " + e));
+                    callback &&
+                        callback(new Error("An error occured while reporting the download status. " + e));
                 }
             });
         }
@@ -1138,16 +1145,18 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
                     if (yield FileUtil.fileExists(filesystem.Directory.Data, file)) {
                         yield filesystem.Filesystem.deleteFile({ directory: filesystem.Directory.Data, path: file });
                     }
-                    yield http.Http.downloadFile({
+                    yield filesystem.Filesystem.downloadFile({
                         url: this.downloadUrl,
                         method: "GET",
-                        filePath: file,
-                        fileDirectory: filesystem.Directory.Data,
-                        responseType: "blob"
+                        path: file,
+                        directory: filesystem.Directory.Data,
+                        responseType: "blob",
                     });
                 }
                 catch (e) {
-                    CodePushUtil.throwError(new Error("An error occured while downloading the package. " + (e && e.message) ? e.message : ""));
+                    CodePushUtil.throwError(new Error("An error occured while downloading the package. " + (e && e.message)
+                        ? e.message
+                        : ""));
                 }
                 finally {
                     this.isDownloading = false;
@@ -1669,5 +1678,5 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
 
     return exports;
 
-})({}, acquisitionSdk, filesystem, capacitorExports, http, device, dialog);
+})({}, acquisitionSdk, filesystem, capacitorExports, device, dialog);
 //# sourceMappingURL=plugin.js.map

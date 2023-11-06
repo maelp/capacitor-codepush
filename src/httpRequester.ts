@@ -3,9 +3,8 @@ import type { Callback } from "./callbackUtil";
 import { Verb } from "./http";
 import {
   CapacitorHttp,
-  type HttpResponse,
-  type HttpOptions,
 } from "@capacitor/core";
+import type { HttpResponse, HttpOptions } from "@capacitor/core";
 
 console.log("---- loaded Verb", Verb.GET, Verb.HEAD);
 

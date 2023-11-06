@@ -17,8 +17,7 @@ export class FileUtil {
             try {
                 const statResult = yield Filesystem.stat({ directory, path });
                 // directory for Android, NSFileTypeDirectory for iOS
-                return (statResult.type === "directory" ||
-                    statResult.type === "NSFileTypeDirectory");
+                return statResult.type === "directory";
             }
             catch (error) {
                 return false;
@@ -33,7 +32,7 @@ export class FileUtil {
             try {
                 const statResult = yield Filesystem.stat({ directory, path });
                 // file for Android, NSFileTypeRegular for iOS
-                return (statResult.type === "file" || statResult.type === "NSFileTypeRegular");
+                return statResult.type === "file";
             }
             catch (error) {
                 return false;

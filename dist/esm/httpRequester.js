@@ -1,5 +1,5 @@
-import { Http } from "code-push/script/acquisition-sdk";
-import { Http as NativeHttp } from "@capacitor-community/http";
+import { CapacitorHttp, } from "@capacitor/core";
+console.log("---- loaded Verb", 0 /* GET */, 1 /* HEAD */);
 /**
  * XMLHttpRequest-based implementation of Http.Requester.
  */
@@ -8,6 +8,7 @@ export class HttpRequester {
         this.contentType = contentType;
     }
     request(verb, url, callbackOrRequestBody, callback) {
+        console.log("---- calling httpRequester.request");
         var requestBody;
         var requestCallback = callback;
         // request(verb, url, callback)
@@ -27,13 +28,14 @@ export class HttpRequester {
             }
         }
         var methodName = this.getHttpMethodName(verb);
+        console.log("----- methodName", methodName);
         if (methodName === null) {
             return requestCallback(new Error("Method Not Allowed"), null);
         }
         const headers = {
             "X-CodePush-Plugin-Name": "cordova-plugin-code-push",
             "X-CodePush-Plugin-Version": "1.11.13",
-            "X-CodePush-SDK-Version": "3.1.5"
+            "X-CodePush-SDK-Version": "3.1.5",
         };
         if (this.contentType) {
             headers["Content-Type"] = this.contentType;
@@ -41,7 +43,7 @@ export class HttpRequester {
         const options = {
             method: methodName,
             url,
-            headers
+            headers,
         };
         if (methodName === "GET") {
             options.params = requestBody;
@@ -49,10 +51,13 @@ export class HttpRequester {
         else {
             options.data = requestBody;
         }
-        NativeHttp.request(options).then((nativeRes) => {
+        CapacitorHttp.request(options).then((nativeRes) => {
             if (typeof nativeRes.data === "object")
                 nativeRes.data = JSON.stringify(nativeRes.data);
-            var response = { statusCode: nativeRes.status, body: nativeRes.data };
+            var response = {
+                statusCode: nativeRes.status,
+                body: nativeRes.data,
+            };
             requestCallback && requestCallback(null, response);
         });
     }
@@ -62,21 +67,21 @@ export class HttpRequester {
      */
     getHttpMethodName(verb) {
         switch (verb) {
-            case Http.Verb.GET:
+            case 0 /* GET */:
                 return "GET";
-            case Http.Verb.DELETE:
+            case 4 /* DELETE */:
                 return "DELETE";
-            case Http.Verb.HEAD:
+            case 1 /* HEAD */:
                 return "HEAD";
-            case Http.Verb.PATCH:
+            case 8 /* PATCH */:
                 return "PATCH";
-            case Http.Verb.POST:
+            case 2 /* POST */:
                 return "POST";
-            case Http.Verb.PUT:
+            case 3 /* PUT */:
                 return "PUT";
-            case Http.Verb.TRACE:
-            case Http.Verb.OPTIONS:
-            case Http.Verb.CONNECT:
+            case 5 /* TRACE */:
+            case 6 /* OPTIONS */:
+            case 7 /* CONNECT */:
             default:
                 return null;
         }

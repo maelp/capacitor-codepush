@@ -10,11 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { CodePushUtil } from "./codePushUtil";
 import { LocalPackage } from "./localPackage";
 import { NativeAppInfo } from "./nativeAppInfo";
-import { Package } from "./package";
+import { Package, } from "./package";
 import { Sdk } from "./sdk";
-import { Directory, Filesystem } from "@capacitor/filesystem";
 import { FileUtil } from "./fileUtil";
-import { Http } from "@capacitor-community/http";
+import { Filesystem, Directory } from "@capacitor/filesystem";
 /**
  * Defines a remote package, which represents an update package available for download.
  */
@@ -51,16 +50,18 @@ export class RemotePackage extends Package {
                 if (yield FileUtil.fileExists(Directory.Data, file)) {
                     yield Filesystem.deleteFile({ directory: Directory.Data, path: file });
                 }
-                yield Http.downloadFile({
+                yield Filesystem.downloadFile({
                     url: this.downloadUrl,
                     method: "GET",
-                    filePath: file,
-                    fileDirectory: Directory.Data,
-                    responseType: "blob"
+                    path: file,
+                    directory: Directory.Data,
+                    responseType: "blob",
                 });
             }
             catch (e) {
-                CodePushUtil.throwError(new Error("An error occured while downloading the package. " + (e && e.message) ? e.message : ""));
+                CodePushUtil.throwError(new Error("An error occured while downloading the package. " + (e && e.message)
+                    ? e.message
+                    : ""));
             }
             finally {
                 this.isDownloading = false;

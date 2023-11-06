@@ -1,5 +1,4 @@
-import { CapacitorHttp, } from "@capacitor/core";
-console.log("---- loaded Verb", 0 /* GET */, 1 /* HEAD */);
+import { CapacitorHttp } from "@capacitor/core";
 /**
  * XMLHttpRequest-based implementation of Http.Requester.
  */
@@ -8,7 +7,6 @@ export class HttpRequester {
         this.contentType = contentType;
     }
     request(verb, url, callbackOrRequestBody, callback) {
-        console.log("---- calling httpRequester.request");
         var requestBody;
         var requestCallback = callback;
         // request(verb, url, callback)
@@ -28,7 +26,6 @@ export class HttpRequester {
             }
         }
         var methodName = this.getHttpMethodName(verb);
-        console.log("----- methodName", methodName);
         if (methodName === null) {
             return requestCallback(new Error("Method Not Allowed"), null);
         }

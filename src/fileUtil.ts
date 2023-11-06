@@ -5,6 +5,7 @@ import {
   Encoding,
 } from "@capacitor/filesystem";
 import { Callback } from "./callbackUtil";
+import { CodePushUtil } from "./codePushUtil";
 
 /**
  * File utilities for CodePush.
@@ -163,7 +164,7 @@ export class FileUtil {
         await Filesystem.deleteFile({ directory: Directory.Data, path });
       } catch (error) {
         /* If delete fails, silently continue */
-        console.log("Could not delete file: " + path);
+        CodePushUtil.logMessage("Could not delete file: " + path);
       }
     }
   }

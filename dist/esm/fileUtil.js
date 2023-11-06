@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { Directory, Filesystem, Encoding, } from "@capacitor/filesystem";
+import { CodePushUtil } from "./codePushUtil";
 /**
  * File utilities for CodePush.
  */
@@ -142,7 +143,7 @@ export class FileUtil {
                 }
                 catch (error) {
                     /* If delete fails, silently continue */
-                    console.log("Could not delete file: " + path);
+                    CodePushUtil.logMessage("Could not delete file: " + path);
                 }
             }
         });

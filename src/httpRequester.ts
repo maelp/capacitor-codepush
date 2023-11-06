@@ -1,12 +1,8 @@
 import { Http } from "code-push/script/acquisition-sdk";
 import type { Callback } from "./callbackUtil";
 import { Verb } from "./http";
-import {
-  CapacitorHttp,
-} from "@capacitor/core";
+import { CapacitorHttp } from "@capacitor/core";
 import type { HttpResponse, HttpOptions } from "@capacitor/core";
-
-console.log("---- loaded Verb", Verb.GET, Verb.HEAD);
 
 /**
  * XMLHttpRequest-based implementation of Http.Requester.
@@ -24,7 +20,6 @@ export class HttpRequester implements Http.Requester {
     callbackOrRequestBody: Callback<Http.Response> | string,
     callback?: Callback<Http.Response>
   ): void {
-    console.log("---- calling httpRequester.request");
     var requestBody: any;
     var requestCallback: Callback<Http.Response> = callback!;
 
@@ -47,7 +42,6 @@ export class HttpRequester implements Http.Requester {
     }
 
     var methodName = this.getHttpMethodName(verb);
-    console.log("----- methodName", methodName);
     if (methodName === null) {
       return requestCallback(new Error("Method Not Allowed"), null);
     }

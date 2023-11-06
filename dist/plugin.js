@@ -232,7 +232,7 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, devi
                     }
                     catch (error) {
                         /* If delete fails, silently continue */
-                        console.log("Could not delete file: " + path);
+                        CodePushUtil.logMessage("Could not delete file: " + path);
                     }
                 }
             });
@@ -418,7 +418,6 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, devi
     class Package {
     }
 
-    console.log("---- loaded Verb", 0 /* GET */, 1 /* HEAD */);
     /**
      * XMLHttpRequest-based implementation of Http.Requester.
      */
@@ -427,7 +426,6 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, devi
             this.contentType = contentType;
         }
         request(verb, url, callbackOrRequestBody, callback) {
-            console.log("---- calling httpRequester.request");
             var requestBody;
             var requestCallback = callback;
             // request(verb, url, callback)
@@ -447,7 +445,6 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, devi
                 }
             }
             var methodName = this.getHttpMethodName(verb);
-            console.log("----- methodName", methodName);
             if (methodName === null) {
                 return requestCallback(new Error("Method Not Allowed"), null);
             }
